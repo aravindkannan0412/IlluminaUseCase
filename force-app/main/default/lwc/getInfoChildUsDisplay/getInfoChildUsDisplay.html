@@ -1,0 +1,12 @@
+<template>
+    <div class="slds-var-p-around_medium" title="Us Places Info">
+        <lightning-datatable
+                key-field="External_Id__c"
+                data={recordList}
+                columns={cols}
+                hide-checkbox-column
+                show-row-number-column
+        >
+        </lightning-datatable>
+    </div>
+</template>

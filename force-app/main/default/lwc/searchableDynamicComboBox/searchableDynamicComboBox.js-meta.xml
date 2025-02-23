@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>63.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__FlowScreen</target>
+    </targets>
+     <targetConfigs>
+        <targetConfig targets="lightning__AppPage,lightning__FlowScreen">
+            <property name="sobjectApiName" type="string" default="PlacesFromPostalCode__c"/>
+            <property name="sobjfieldApiName" type="string" default="PlacesFromPostalCode__c.CountryCode__c"/>
+            <property name="inputLabel" type="string" default="Select Country"/>
+            <property name="placeHolderLabel" type="string" default="Search Countries"/>
+            <property name="targetComp" type="string" datasource="Flow,AppPage"/>
+            <property name="selectedpicklistvalue" type="string"/>
+            <property name="isrequired" type="boolean"/>
+
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

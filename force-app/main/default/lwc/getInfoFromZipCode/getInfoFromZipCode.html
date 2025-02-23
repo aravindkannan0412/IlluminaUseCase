@@ -1,0 +1,32 @@
+<template>
+        <div class="slds-card">
+            <template lwc:if ={showSpinner}>
+                <div class="slds-form-element">
+                    <lightning-spinner alternative-text="Loading" size="small" variant="brand"></lightning-spinner>
+                </div>
+            </template>
+            <template lwc:else>
+                <template lwc:if={isUsOnly}>
+                    <div class="slds-form-element">
+                        <c-get-info-child-us-display record-list={zipCodeUsFlattenedLst}></c-get-info-child-us-display>
+                    </div>
+                </template>
+                <template lwc:else>
+                    <div class="slds-form-element">
+                        <div class="slds-form-element__control slds-var-p-around_small">
+                                <div>
+                                    <c-searchable-dynamic-combo-box onselected={handleComboBoxChange} lwc:spread={childprops}></c-searchable-dynamic-combo-box>
+                                </div>
+                                <lightning-input type="text" label="Enter Zip Code" placeholder="Type here" onchange={handleInputChange} value={zipCodeValue} required></lightning-input>
+                        </div>
+                    </div>
+                </template>
+    
+                <footer class="slds-card__footer">
+                    <div class="slds-grid slds-grid_vertical-align-center slds-grid_align-end">
+                        <lightning-button label={btnLabel} onclick={hanldeClick} variant="brand" disabled={btnDisabled}></lightning-button>
+                    </div>
+                </footer>
+            </template>
+        </div>
+</template>

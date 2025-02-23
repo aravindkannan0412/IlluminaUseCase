@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <actionCalls>
+        <description>This Action used to get places from external url by providing country code and zipcode as input</description>
+        <name>GetPlacesFromZippo</name>
+        <label>Get Places From Zippo</label>
+        <locationX>512</locationX>
+        <locationY>242</locationY>
+        <actionName>GetPlacesFromZippo.Get Places From External Url</actionName>
+        <actionType>externalService</actionType>
+        <connector>
+            <targetReference>CheckSuccessOnCallout</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Failure_Message</targetReference>
+        </faultConnector>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>countrycode</name>
+            <value>
+                <elementReference>CountrySearchComponent.selectedpicklistvalue</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>zipcode</name>
+            <value>
+                <elementReference>Enter_Zip_code</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>GetPlacesFromZippo.Get Places From External Url</nameSegment>
+        <offset>0</offset>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </actionCalls>
+    <apiVersion>63.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <constants>
+        <name>InputLabel</name>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Select Country</stringValue>
+        </value>
+    </constants>
+    <constants>
+        <name>placeholder</name>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Search Countries</stringValue>
+        </value>
+    </constants>
+    <constants>
+        <name>sobjectApiName</name>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>PlacesFromPostalCode__c</stringValue>
+        </value>
+    </constants>
+    <constants>
+        <name>sobjfielApiName</name>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>PlacesFromPostalCode__c.CountryCode__c</stringValue>
+        </value>
+    </constants>
+    <decisions>
+        <description>This decision checks the data if its us or not us</description>
+        <name>CheckIfUsOrNonUsData</name>
+        <label>Check If Us Or Non-Us Data</label>
+        <locationX>182</locationX>
+        <locationY>566</locationY>
+        <defaultConnector>
+            <targetReference>Upsert_Non_US_Data</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>If Non-Us</defaultConnectorLabel>
+        <rules>
+            <name>If_Us</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>GetPlacesFromZippo.2XX.countryx20abbreviation</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>US</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>DisplayUS_Places</targetReference>
+            </connector>
+            <label>If Us</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>This decision element used to check if the callout response is success or not</description>
+        <name>CheckSuccessOnCallout</name>
+        <label>Check Success On Callout</label>
+        <locationX>512</locationX>
+        <locationY>350</locationY>
+        <defaultConnector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Failure_Message</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>responseFailure</defaultConnectorLabel>
+        <rules>
+            <name>responseSuccess</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>GetPlacesFromZippo.responseCode</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <numberValue>200.0</numberValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>PlacesFromPostCodeTransformation</targetReference>
+            </connector>
+            <label>responseSuccess</label>
+        </rules>
+    </decisions>
+    <description>This is used to get the search for the places using the api and show the results in the screen in case of us show a datatable or in case other countries create the data into places table</description>
+    <dynamicChoiceSets>
+        <description>This resource used to hold the picklist values</description>
+        <name>CountryPicklistChoiceSet</name>
+        <dataType>Picklist</dataType>
+        <displayField xsi:nil="true"/>
+        <object xsi:nil="true"/>
+        <picklistField>CountryCode__c</picklistField>
+        <picklistObject>PlacesFromPostalCode__c</picklistObject>
+        <sortOrder>Asc</sortOrder>
+    </dynamicChoiceSets>
+    <environments>Default</environments>
+    <interviewLabel>Get Places Info {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Get Places Info</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>Flow</processType>
+    <recordCreates>
+        <description>This element used to upsert non us data</description>
+        <name>Upsert_Non_US_Data</name>
+        <label>Upsert Non US Data</label>
+        <locationX>314</locationX>
+        <locationY>674</locationY>
+        <connector>
+            <targetReference>Success_Creation_Notify</targetReference>
+        </connector>
+        <doesUpsert>true</doesUpsert>
+        <faultConnector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Failure_Message</targetReference>
+        </faultConnector>
+        <inputReference>PlacesFromPostCodeTransformation</inputReference>
+        <upsertExternalIdField>External_Id__c</upsertExternalIdField>
+    </recordCreates>
+    <runInMode>DefaultMode</runInMode>
+    <screens>
+        <description>This Screen used to display united states places</description>
+        <name>DisplayUS_Places</name>
+        <label>Display United States Places</label>
+        <locationX>50</locationX>
+        <locationY>674</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>ShowUSData</name>
+            <dataTypeMappings>
+                <typeName>T</typeName>
+                <typeValue>PlacesFromPostalCode__c</typeValue>
+            </dataTypeMappings>
+            <extensionName>flowruntime:datatable</extensionName>
+            <fieldType>ComponentInstance</fieldType>
+            <inputParameters>
+                <name>label</name>
+                <value>
+                    <stringValue>Us Places</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>selectionMode</name>
+                <value>
+                    <stringValue>NO_SELECTION</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>minRowSelection</name>
+                <value>
+                    <numberValue>0.0</numberValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>tableData</name>
+                <value>
+                    <elementReference>PlacesFromPostCodeTransformation</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>maxRowSelection</name>
+                <value>
+                    <numberValue>0.0</numberValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>columns</name>
+                <value>
+                    <stringValue>[{&quot;apiName&quot;:&quot;PlaceName__c&quot;,&quot;guid&quot;:&quot;column-e951&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:0,&quot;label&quot;:&quot;Place Name&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;PostalCode__c&quot;,&quot;guid&quot;:&quot;column-32b0&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:1,&quot;label&quot;:&quot;Postal Code&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;Country__c&quot;,&quot;guid&quot;:&quot;column-99af&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:2,&quot;label&quot;:&quot;Country&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;CountryCode__c&quot;,&quot;guid&quot;:&quot;column-683a&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:3,&quot;label&quot;:&quot;Country Code&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;State__c&quot;,&quot;guid&quot;:&quot;column-4780&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:4,&quot;label&quot;:&quot;State&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;StateAbbreviation__c&quot;,&quot;guid&quot;:&quot;column-8b8b&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:5,&quot;label&quot;:&quot;State Abbreviation&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;PlaceLocation__Latitude__s&quot;,&quot;guid&quot;:&quot;column-8f84&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:6,&quot;label&quot;:&quot;Place Location (Latitude)&quot;,&quot;type&quot;:&quot;number&quot;},{&quot;apiName&quot;:&quot;PlaceLocation__Longitude__s&quot;,&quot;guid&quot;:&quot;column-e4b4&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:7,&quot;label&quot;:&quot;Place Location (Longitude)&quot;,&quot;type&quot;:&quot;number&quot;},{&quot;apiName&quot;:&quot;&quot;,&quot;guid&quot;:&quot;column-f931&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:7}]</stringValue>
+                </value>
+            </inputParameters>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <storeOutputAutomatically>true</storeOutputAutomatically>
+        </fields>
+        <nextOrFinishButtonLabel>Close</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <description>This screen used to display failure response</description>
+        <name>Failure_Message</name>
+        <label>Failure Message</label>
+        <locationX>1106</locationX>
+        <locationY>350</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>FailedInterviewMessage</name>
+            <fieldText>&lt;p style=&quot;text-align: center;&quot;&gt;&lt;span style=&quot;font-size: 16px; font-family: verdana;&quot;&gt;{!$Flow.FaultMessage}&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <nextOrFinishButtonLabel>Close</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <description>This screen used to get the input details</description>
+        <name>GetPlacesInfo_screen</name>
+        <label>Get Places Info</label>
+        <locationX>512</locationX>
+        <locationY>134</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>GetPlacesFromZippo</targetReference>
+        </connector>
+        <fields>
+            <name>CountrySearchComponent</name>
+            <extensionName>c:searchableDynamicComboBox</extensionName>
+            <fieldType>ComponentInstance</fieldType>
+            <inputParameters>
+                <name>inputLabel</name>
+                <value>
+                    <elementReference>InputLabel</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>placeHolderLabel</name>
+                <value>
+                    <elementReference>placeholder</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>sobjectApiName</name>
+                <value>
+                    <elementReference>sobjectApiName</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>sobjfieldApiName</name>
+                <value>
+                    <elementReference>sobjfielApiName</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>isrequired</name>
+                <value>
+                    <booleanValue>true</booleanValue>
+                </value>
+            </inputParameters>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <storeOutputAutomatically>true</storeOutputAutomatically>
+        </fields>
+        <fields>
+            <name>Enter_Zip_code</name>
+            <dataType>String</dataType>
+            <fieldText>Enter Zip code</fieldText>
+            <fieldType>InputField</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+        </fields>
+        <nextOrFinishButtonLabel>Get Info</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <name>Success_Creation_Notify</name>
+        <label>Success Creation Notify</label>
+        <locationX>314</locationX>
+        <locationY>782</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>SuccessCreationScreenTxt</name>
+            <fieldText>&lt;p style=&quot;text-align: center;&quot;&gt;&lt;strong style=&quot;background-color: rgb(255, 255, 255); font-family: verdana; color: rgb(68, 68, 68);&quot;&gt;Postal Places Records Created/Updated Successfully!!!&lt;/strong&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <nextOrFinishButtonLabel>Close</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <start>
+        <locationX>386</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>GetPlacesInfo_screen</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <transforms>
+        <description>This used to transform the api json to post code sobject format</description>
+        <name>PlacesFromPostCodeTransformation</name>
+        <label>PlacesFromPostCodeTransformation</label>
+        <locationX>182</locationX>
+        <locationY>458</locationY>
+        <connector>
+            <targetReference>CheckIfUsOrNonUsData</targetReference>
+        </connector>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <objectType>PlacesFromPostalCode__c</objectType>
+        <scale>0</scale>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+        <transformValues>
+            <transformValueActions>
+                <outputFieldApiName>PlaceName__c</outputFieldApiName>
+                <transformType>Map</transformType>
+                <value>
+                    <elementReference>GetPlacesFromZippo.2XX.places[$EachItem].placex20name</elementReference>
+                </value>
+            </transformValueActions>
+            <transformValueActions>
+                <outputFieldApiName>State__c</outputFieldApiName>
+                <transformType>Map</transformType>
+                <value>
+                    <elementReference>GetPlacesFromZippo.2XX.places[$EachItem].state</elementReference>
+                </value>
+            </transformValueActions>
+            <transformValueActions>
+                <outputFieldApiName>StateAbbreviation__c</outputFieldApiName>
+                <transformType>Map</transformType>
+                <value>
+                    <elementReference>GetPlacesFromZippo.2XX.places[$EachItem].statex20abbreviation</elementReference>
+                </value>
+            </transformValueActions>
+            <transformValueActions>
+                <outputFieldApiName>Country__c</outputFieldApiName>
+                <transformType>Map</transformType>
+                <value>
+                    <elementReference>GetPlacesFromZippo.2XX.country</elementReference>
+                </value>
+            </transformValueActions>
+            <transformValueActions>
+                <outputFieldApiName>CountryCode__c</outputFieldApiName>
+                <transformType>Map</transformType>
+                <value>
+                    <elementReference>GetPlacesFromZippo.2XX.countryx20abbreviation</elementReference>
+                </value>
+            </transformValueActions>
+            <transformValueActions>
+                <outputFieldApiName>PostalCode__c</outputFieldApiName>
+                <transformType>Map</transformType>
+                <value>
+                    <elementReference>GetPlacesFromZippo.2XX.postx20code</elementReference>
+                </value>
+            </transformValueActions>
+            <transformValueActions>
+                <outputFieldApiName>PlaceLocation__Latitude__s</outputFieldApiName>
+                <transformType>Map</transformType>
+                <value>
+                    <formulaDataType>Number</formulaDataType>
+                    <formulaExpression>VALUE({!GetPlacesFromZippo.2XX.places[$EachItem].latitude})</formulaExpression>
+                </value>
+            </transformValueActions>
+            <transformValueActions>
+                <outputFieldApiName>PlaceLocation__Longitude__s</outputFieldApiName>
+                <transformType>Map</transformType>
+                <value>
+                    <formulaDataType>Number</formulaDataType>
+                    <formulaExpression>VALUE({!GetPlacesFromZippo.2XX.places[$EachItem].longitude})</formulaExpression>
+                </value>
+            </transformValueActions>
+            <transformValueActions>
+                <outputFieldApiName>External_Id__c</outputFieldApiName>
+                <transformType>Map</transformType>
+                <value>
+                    <formulaDataType>String</formulaDataType>
+                    <formulaExpression>SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(TRIM({!GetPlacesFromZippo.2XX.places[$EachItem].placex20name}), &quot; &quot;, &quot;&quot;), &quot;-&quot;, &quot;&quot;), &quot;&apos;&quot;, &quot;&quot;)+&quot;-&quot;+
+{!GetPlacesFromZippo.2XX.countryx20abbreviation}+&quot;-&quot;+
+{!GetPlacesFromZippo.2XX.postx20code}+&quot;-&quot;+
+{!GetPlacesFromZippo.2XX.places[$EachItem].state}</formulaExpression>
+                </value>
+            </transformValueActions>
+        </transformValues>
+    </transforms>
+</Flow>
