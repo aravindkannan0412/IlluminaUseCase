@@ -5,11 +5,6 @@ private with sharing class ZipCodeHandlersTest {
 
     @testSetup static void setup() {
         user u=UseCaseRelatedTestDataFactory.insertUser(username,email);
-
-        system.runAs(u){
-             PlacesFromPostalCode__c placesFromPostCode=UseCaseRelatedTestDataFactory.createPlacesFromPostalCode();
-             insert placesFromPostCode;
-        }
     }
 
     @isTest static void getZipCodeDataPositiveTest(){
